@@ -1,0 +1,94 @@
+#include <Servo.h>
+
+Servo servo1, servo2, servo3, servo4, servo5, servo6, servo7, servo8, servo9, servo10, servo11, servo12;
+int pos1 = 90, pos2 = 90, pos3 = 90, pos4 = 90, pos5 = 90, pos6 = 90, pos7 = 90, pos8 = 90, pos9 = 90, pos10 = 90, pos11 = 90, pos12 = 90;
+const int sensor1Pin = 9;
+const int sensor2Pin = 10;
+const int sensor3Pin = 13;
+const int increment = 1; // Smaller increment for smoother movement
+
+void setup() {
+  Serial.begin(9600);
+  servo1.attach(2); servo2.attach(3); servo3.attach(4); servo4.attach(5); servo5.attach(6); servo6.attach(7);
+  servo7.attach(8); servo8.attach(9); servo9.attach(10); servo10.attach(11); servo11.attach(12); servo12.attach(13);
+  pinMode(sensor1Pin, INPUT);
+  pinMode(sensor2Pin, INPUT);
+  pinMode(sensor3Pin, INPUT);
+  Serial.println("Servo control ready.");
+}
+
+void loop() {
+  bool obstacleDetected = detectObstacle();
+  if (obstacleDetected) {
+    Serial.println("O");
+  } else {
+    Serial.println("C");
+    if (Serial.available() > 0) {
+      char key = Serial.read();
+      switch (key) {
+        case 'a': moveServo(servo1, pos1, increment); break;
+        case 'z': moveServo(servo1, pos1, -increment); break;
+        case 'q': moveServo(servo2, pos2, increment); break;
+        case 'w': moveServo(servo2, pos2, -increment); break;
+        case 'e': moveServo(servo3, pos3, increment); break;
+        case 'r': moveServo(servo3, pos3, -increment); break;
+        case 't': moveServo(servo4, pos4, increment); break;
+        case 'y': moveServo(servo4, pos4, -increment); break;
+        case 'u': moveServo(servo5, pos5, increment); break;
+        case 'i': moveServo(servo5, pos5, -increment); break;
+        case 'o': moveServo(servo6, pos6, increment); break;
+        case 'p': moveServo(servo6, pos6, -increment); break;
+        case 's': moveServo(servo7, pos7, increment); break;
+        case 'd': moveServo(servo7, pos7, -increment); break;
+        case '1': setClawServo10(180); break;
+        case '0': setClawServo10(90); break;
+        case 'P': reportPositions(); break;
+      }
+    }
+    moveServo(servo11, pos11, increment);
+  }
+  delay(20); // Reduce delay for smoother response
+}
+
+bool detectObstacle() {
+  bool sensor1Value = digitalRead(sensor1Pin);
+  bool sensor2Value = digitalRead(sensor2Pin);
+  bool sensor3Value = digitalRead(sensor3Pin);
+
+  // Print sensor values for debugging
+  Serial.print("Sensor1: "); Serial.print(sensor1Value);
+  Serial.print(" Sensor2: "); Serial.print(sensor2Value);
+  Serial.print(" Sensor3: "); Serial.println(sensor3Value);
+
+  // Assuming the sensors return LOW when detecting an obstacle
+  return (!sensor1Value || !sensor2Value || !sensor3Value);
+}
+
+void moveServo(Servo& servo, int& pos, int increment) {
+  pos += increment;
+  if (pos > 180) pos = 180;
+  if (pos < 0) pos = 0;
+  servo.write(pos);
+}
+
+void setClawServo10(int position) {
+  pos10 = position;
+  servo10.write(position);
+}
+
+void reportPositions() {
+  Serial.print("P:");
+  Serial.print(pos1); Serial.print(",");
+  Serial.print(pos2); Serial.print(",");
+  Serial.print(pos3); Serial.print(",");
+  Serial.print(pos4); Serial.print(",");
+  Serial.print(pos5); Serial.print(",");
+  Serial.print(pos6); Serial.print(",");
+  Serial.print(pos7); Serial.print(",");
+  Serial.print(pos8); Serial.print(",");
+  Serial.print(pos9); Serial.print(",");
+  Serial.print(pos10); Serial.print(",");
+  Serial.print(pos11); Serial.print(",");
+  Serial.print(pos12);
+  Serial.println();
+}
